@@ -17,7 +17,7 @@ library(igraph)
 ga.data <- read.csv('ga_edgelist.csv', header = T)
 g <- graph.data.frame(ga.data,directed = F)
 ```
-1.Grey???s Anatomy Network of Romance:
+1.Grey's Anatomy Network of Romance:
 
 ```{r}
 library(cluster)
@@ -201,13 +201,6 @@ algorithm 2: iii)
 ```{r}
 #modularity for each phase of the algorithm
 modularity(gc_label_prop2)
-```
-```{r}
-vec22 <- vector()
-vec22[1] <- substring(names[2], 1)
-vec22
-names[2]
-
 ```
 
 
