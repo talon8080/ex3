@@ -1,0 +1,217 @@
+---
+title: "Tal Waitzenberg 305578189 & Lital Morali 302491709"
+output: html_notebook
+---
+
+
+```{r}
+folder = 'C:/Users/talon/Desktop/shitot/Assignment3'
+setwd(folder)
+
+#install.packages("igraph")
+#install.packages("digest")
+#install.packages("rgl")
+
+library(igraph)
+
+ga.data <- read.csv('ga_edgelist.csv', header = T)
+g <- graph.data.frame(ga.data,directed = F)
+```
+1.Grey???s Anatomy Network of Romance:
+
+```{r}
+library(cluster)
+
+dg <- decompose.graph(g)
+number_of_vertix_list <- lapply(dg, function(x) vcount(x))
+maxIndex <- which.max(number_of_vertix_list)
+max_component <- dg[[maxIndex]]
+plot(max_component)
+```
+
+1.a) i.	Betweeness
+```{r}
+betweeness <- betweenness(max_component, V(max_component), directed = FALSE, weights = NULL, nobigint = TRUE, normalized = FALSE)
+actor_max_betweeness <- which.max(betweeness)
+labels(actor_max_betweeness)
+```
+
+1.a) ii. Closeness
+```{r}
+closeness1 <- closeness(max_component, V(max_component), weights = NULL, normalized = FALSE)
+actor_max_closeness <- which.max(closeness1)
+labels(actor_max_closeness)
+```
+1.a) iii. Eigencetor
+```{r}
+eigen <- eigen_centrality(max_component)[[1]]
+actor_max_eigen <- which.max(eigen)
+labels(actor_max_eigen)
+```
+
+1.b) algorithm 1: Spin-glass model based on statistical mechanics: 
+```{r}
+gc_spinglass <- cluster_spinglass(max_component)
+gc_spinglass
+```
+algorithm 1: i)
+```{r}
+memb <- membership(gc_spinglass)
+plot(max_component, vertex.size=5, vertex.color=memb, asp=FALSE)
+```
+algorithm 1: ii)
+```{r}
+#Store cluster ids for each vertex
+sizes(gc_spinglass)
+```
+algorithm 1: iii)
+```{r}
+#modularity for each phase of the algorithm
+modularity(gc_spinglass)
+```
+
+1.b) algorithm 2: Algorithm based on propagating labels. 
+```{r}
+gc_label_prop <- cluster_label_prop(max_component)
+gc_label_prop
+```
+algorithm 2: i)
+```{r}
+memb_prop <- membership(gc_label_prop)
+plot(max_component, vertex.size=5, vertex.color=memb_prop, asp=FALSE)
+```
+algorithm 2: ii)
+```{r}
+#Store cluster ids for each vertex
+sizes(gc_label_prop)
+```
+algorithm 2: iii)
+```{r}
+#modularity for each phase of the algorithm
+modularity(gc_label_prop)
+```
+
+2. Lital and Tal???s Network of Friends:
+a. Data collection:
+We have collected data from facebook using facebook's API.
+The data we have chosen is friend list for each one of us, using tokens that allows collecting this data by permissions. The data we have focused on was the full name of the friends in the friend list.
+```{r}
+#install.packages('Rfacebook')
+library('Rfacebook')
+
+#tal_token <- "EAACEdEose0cBAAnuZCsD0H9xnlagVpQyckTNzvG5L9WXlRQ9KMwZCwITj13ZCFjKqO4ydI0AgYRMvRQV4z#qemJh3ZCoPR4M3ZCxBTMnP6mWzcRcdmzvI8oeGk1G9L8iUsixsLur5HCVJlApaLGZBOVKR8ihCE9BHtBgWYB2x7clQ1ojzf4e#oqY"
+#lital_token <- "EAACEdEose0cBAEQQGWfIhkmFXguKQKYYw9ijwwEVcfUk2hpde6qSbBFAZCpsPRDg5VHz7XT1RZBczwNJ#HeNiZAixPABZAZAZC3Y6Y4N86Pq11xOgKgRgmyODZAe9HrqybDPZAiJvGrZC8WZCDQOesJKT7s6kEAvZCnu72RR7ODpKZBcKG#ZCLbYRtLHyFK4yIZAe8tWP0kZD"
+#lital_friends <- getFriends(token = lital_token)
+#tal_friends <- getFriends(token = tal_token)
+#friends <- unique(rbind(lital_friends, tal_friends))
+
+
+friends <- read.csv('fb_friendlist.csv', header = T)
+names <- friends$name
+first_names <- friends$first_name
+last_names <- friends$last_name
+
+friends
+```
+b. The nodes are the names of the friends in the friend list.
+   The arcs are the connection between friends.
+   connection between friends will be if the first name of one friend is beginning with the same     letter as the other friend's last name. For example: Ron Gamliel and Guy Ayalon are connected because Gamliel's first letter is 'G' as Guy's first letter.
+
+c. The graph represent Lital and Tal???s Network of Friends:
+```{r}
+vec <- vector()
+for (i in 1:length(names)) {
+  for (j in i:length(names)) {
+    if (names[i] != names[j] && substring(first_names[i], 1, 1) == substring(last_names[j], 1, 1)) {
+      vec[length(vec) + 1] <- substring(names[i], 1)
+      vec[length(vec) + 1] <- substring(names[j], 1)
+    }
+  }
+}
+
+friends_graph <- graph(vec)
+g2 <- as.undirected(friends_graph)
+plot(g2)
+```
+
+d. Lital and Tal???s Network of Friends: Network Analysis:
+  
+```{r}
+dg2 <- decompose.graph(g2)
+number_of_vertix_list2 <- lapply(dg2, function(x) vcount(x))
+maxIndex2 <- which.max(number_of_vertix_list2)
+max_component2 <- dg2[[maxIndex2]]
+plot(max_component2)
+```
+d.a)
+  i.	Betweeness
+```{r}
+betweeness2 <- betweenness(max_component2, V(max_component2), directed = FALSE, weights = NULL, nobigint = TRUE, normalized = FALSE)
+actor_max_betweeness2 <- which.max(betweeness2)
+labels(actor_max_betweeness2)
+```
+  ii. Closeness
+```{r}
+closeness2 <- closeness(max_component2, V(max_component2), weights = NULL, normalized = FALSE)
+actor_max_closeness2 <- which.max(closeness2)
+labels(actor_max_closeness2)
+```
+  iii. Eigencetor
+```{r}
+eigen2 <- eigen_centrality(max_component2)[[1]]
+actor_max_eigen2 <- which.max(eigen2)
+labels(actor_max_eigen2)
+```
+d.b) algorithm 1: Spin-glass model based on statistical mechanics: 
+```{r}
+gc_spinglass2 <- cluster_spinglass(max_component2)
+gc_spinglass2
+```
+algorithm 1: i)
+```{r}
+memb2 <- membership(gc_spinglass2)
+plot(max_component2, vertex.size=5, vertex.color=memb2, asp=FALSE)
+```
+algorithm 1: ii)
+```{r}
+#Store cluster ids for each vertex
+sizes(gc_spinglass2)
+```
+algorithm 1: iii)
+```{r}
+#modularity for each phase of the algorithm
+modularity(gc_spinglass2)
+```
+d.b) algorithm 2: Algorithm based on propagating labels. 
+```{r}
+gc_label_prop2 <- cluster_label_prop(max_component2)
+gc_label_prop2
+```
+algorithm 2: i)
+```{r}
+memb_prop2 <- membership(gc_label_prop2)
+plot(max_component2, vertex.size=5, vertex.color=memb_prop2, asp=FALSE)
+```
+algorithm 2: ii)
+```{r}
+#Store cluster ids for each vertex
+sizes(gc_label_prop2)
+```
+algorithm 2: iii)
+```{r}
+#modularity for each phase of the algorithm
+modularity(gc_label_prop2)
+```
+```{r}
+vec22 <- vector()
+vec22[1] <- substring(names[2], 1)
+vec22
+names[2]
+
+```
+
+
+
+
+
+
